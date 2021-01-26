@@ -223,13 +223,6 @@ def main():
     terrain_object = create_terrain()
     scene.add_object(terrain_object)
 
-    # Flashing effect Color
-    flash_color = Color(0, 0, 0, 0)
-    # Total time of the current flash
-    total_flash_time = 0
-    # Time elapsed for the current flash
-    flash_timer = 0
-
     # Minimum time between player shots
     shot_cooldown = 0.2
     # Timer for the shot cooldown
@@ -241,9 +234,9 @@ def main():
     delta_time = 0
     prev_time = time.time()
 
-    # Show mouse cursor
+    # Don't show mouse cursor
     pygame.mouse.set_visible(False)
-    # Don't lock the mouse cursor to the game window
+    # Lock the mouse cursor to the game window
     pygame.event.set_grab(True)
 
     # Game loop, runs forever
@@ -254,14 +247,19 @@ def main():
         speed = 0.05
         ang = 20
 
+        #Manter o rato no centro do ecrã
         displayCenter = [screen.get_size()[i] // 2 for i in range(2)]
         mouseMove = (0, 0)
-        #pygame.mouse.set_pos(displayCenter)
+        pygame.mouse.set_pos(displayCenter)
         
+        #Buscar o movimento do rato e devolve (x, y)
         mouseMove = pygame.mouse.get_rel()
 
+        #Código para movimentação da câmara a partir do movimento do rato
         rot = Vector3(mouseMove[1], mouseMove[0], 0)
         scene.camera.rotation *= Quaternion.AngleAxis(rot, math.radians(ang) * delta_time)
+
+        #Para impedir que a câmara rode no eixo do Z
         scene.camera.rotation.z = 0
 
         #Quando é carregada a tecla W
@@ -323,7 +321,7 @@ def main():
                     # Reset the cooldown
                     shot_timer = shot_cooldown
 
-        # Clears the screen with a very dark blue (0, 0, 20)
+        # Clears the screen with a black (0, 0, 0)
         screen.fill((0, 0, 0))
 
         # Animate shots
@@ -344,37 +342,11 @@ def main():
         # Update shot cooldown
         shot_timer -= delta_time
 
-        # Check collisions
-        for shot in shots:
-            # Check each shot with each missile
-            for missile in missiles:
-                # Check the distance between the shot and the missile, it it is below
-                # a threshould (in this case 0.5), destroy the missile and the shot
-                distance = Vector3.distance(shot.position, missile.position)
-                if distance < 0.5:
-                    # Add it to the missile destruction list, and remove it from the scene
-                    missiles_to_destroy.append(missile)
-                    scene.remove_object(missile)
-                    # Add it to the shot destruction list, and remove it from the scene
-                    shots_to_destroy.append(shot)
-                    scene.remove_object(shot)
-                    # Flash the screen cyan for 0.5 seconds
-                    flash_color = Color(0, 1, 1, 1)
-                    total_flash_time = flash_timer = 0.5
-
         # Actually delete objects
         shots = [x for x in shots if x not in shots_to_destroy]
 
         # Render scene
         scene.render(screen)
-
-        # Render screen flash
-        if flash_timer > 0:
-            flash_timer -= delta_time
-            if flash_timer > 0:
-                flash_color.a = flash_timer / total_flash_time
-                # Render the full screen rectangle, using additive blend
-                screen.fill(flash_color.premult_alpha().tuple3(), None, pygame.BLEND_RGB_ADD)
 
         # Swaps the back and front buffer, effectively displaying what we rendered
         pygame.display.flip()

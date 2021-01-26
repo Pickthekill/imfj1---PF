@@ -152,12 +152,6 @@ def main():
         # Clears the screen with a very dark blue (0, 0, 20)
         screen.fill((0, 0, 0))
 
-        # Rotates the object, considering the time passed (not linked to frame rate)
-    #    ax = (axis * math.radians(angle) * delta_time)
-
-    #    q = Quaternion.AngleAxis(axis, math.radians(angle) * delta_time)
-    #    obj1.rotation = q * obj1.rotation
-
         scene.render(screen)
 
         # Swaps the back and front buffer, effectively displaying what we rendered
